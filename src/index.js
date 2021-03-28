@@ -118,12 +118,16 @@ function Square(props) {
             const currentLocation = move? location[move] : -1;
             const column = currentLocation === -1? -1 : currentLocation % 3+1;
             const row = currentLocation === -1? -1 : Math.floor(currentLocation / 3)+1;
-            const locaVal = move?
+            const locaVal = move && move != this.state.stepNumber?
+                '('+row+', '+column+')':
+                '';
+            const currentLocaVal = move && move == this.state.stepNumber?
                 '('+row+', '+column+')':
                 '';
             return (
                 <li key={move}>
-                    <b>{locaVal} </b>                    
+                    <b>{currentLocaVal} </b>  
+                    <small>{locaVal} </small>                    
                     <button onClick={() => this.jumpTo(move)}>{desc}</button>
                 </li>
             );
