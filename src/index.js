@@ -39,23 +39,17 @@ function Square(props) {
     }   
   
     render() {  
+      const elements = [];
+      for (let i = 0; i < 3; i++){
+        let squares = [];
+        for (let j = 0; j < 3; j++){
+        squares.push(this.renderSquare(i*3+j));
+        }
+        elements.push(<div className="board-row">{squares}</div>);
+      }
       return (
         <div>
-          <div className="board-row">
-            {this.renderSquare(0)}
-            {this.renderSquare(1)}
-            {this.renderSquare(2)}
-          </div>
-          <div className="board-row">
-            {this.renderSquare(3)}
-            {this.renderSquare(4)}
-            {this.renderSquare(5)}
-          </div>
-          <div className="board-row">
-            {this.renderSquare(6)}
-            {this.renderSquare(7)}
-            {this.renderSquare(8)}
-          </div>
+          {elements}
         </div>
       );
     }
@@ -72,7 +66,8 @@ function Square(props) {
           ],
           stepNumber: 0,
           xIsNext: true,
-          location: Array(9).fill(null)
+          location: Array(9).fill(null),
+          ascending : true,
         };
     }
 
@@ -106,22 +101,29 @@ function Square(props) {
       });
     }
 
+    sortMoves(){           
+        this.setState({
+          ascending: !this.state.ascending,
+        });
+    }
+
     render() {
         const history = this.state.history;
         const currentHistory = history[this.state.stepNumber];
         const winner = calculateWinner(currentHistory.squares);
         const location = this.state.location;
-        const moves = history.map((step, move) => {
+        const moves = history            
+            .map((step, move) => {
             const desc = move?
                 'Go to move #' + move:
                 'Go to game start';
             const currentLocation = move? location[move] : -1;
             const column = currentLocation === -1? -1 : currentLocation % 3+1;
             const row = currentLocation === -1? -1 : Math.floor(currentLocation / 3)+1;
-            const locaVal = move && move != this.state.stepNumber?
+            const locaVal = move && move !== this.state.stepNumber?
                 '('+row+', '+column+')':
                 '';
-            const currentLocaVal = move && move == this.state.stepNumber?
+            const currentLocaVal = move && move === this.state.stepNumber?
                 '('+row+', '+column+')':
                 '';
             return (
@@ -131,7 +133,10 @@ function Square(props) {
                     <button onClick={() => this.jumpTo(move)}>{desc}</button>
                 </li>
             );
-        });
+        })
+        .sort((a, b) => this.state.ascending? 
+          (a.key > b.key ? 1 : -1) :
+          (a.key < b.key ? 1 : -1));        
 
         let status;
         if(winner){
@@ -150,6 +155,7 @@ function Square(props) {
             </div>
             <div className="game-info">
                 <div>{status}</div>
+                <button onClick={() => this.sortMoves()}>Sort Moves</button>
                 <ol>{moves}</ol>
             </div>
             </div>
