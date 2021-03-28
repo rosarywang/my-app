@@ -71,14 +71,17 @@ function Square(props) {
             }
           ],
           stepNumber: 0,
-          xIsNext: true
+          xIsNext: true,
+          location: Array(9).fill(null)
         };
     }
 
     handleClick(i){
         const history = this.state.history.slice(0, this.state.stepNumber + 1);
-        const current = history[history.length - 1];
-        const squares = current.squares.slice();
+        const currentHistory = history[history.length - 1];
+        const squares = currentHistory.squares.slice();
+        const currentLocation = this.state.location;
+        currentLocation[this.state.stepNumber + 1] = i;       
         if(calculateWinner(squares) || squares[i]){
             return;
         }
@@ -91,8 +94,9 @@ function Square(props) {
               }
             ]),
             stepNumber: history.length,
-            xIsNext: !this.state.xIsNext
-        });            
+            xIsNext: !this.state.xIsNext,
+            location: currentLocation,         
+        });         
     } 
     
     jumpTo(step) {
@@ -104,15 +108,22 @@ function Square(props) {
 
     render() {
         const history = this.state.history;
-        const current = history[this.state.stepNumber];
-        const winner = calculateWinner(current.squares);
-
+        const currentHistory = history[this.state.stepNumber];
+        const winner = calculateWinner(currentHistory.squares);
+        const location = this.state.location;
         const moves = history.map((step, move) => {
             const desc = move?
                 'Go to move #' + move:
                 'Go to game start';
+            const currentLocation = move? location[move] : -1;
+            const column = currentLocation === -1? -1 : currentLocation % 3+1;
+            const row = currentLocation === -1? -1 : Math.floor(currentLocation / 3)+1;
+            const locaVal = move?
+                '('+row+', '+column+')':
+                '';
             return (
                 <li key={move}>
+                    <b>{locaVal} </b>                    
                     <button onClick={() => this.jumpTo(move)}>{desc}</button>
                 </li>
             );
@@ -129,7 +140,7 @@ function Square(props) {
             <div className="game">
             <div className="game-board">
                 <Board 
-                    squares={current.squares}
+                    squares={currentHistory.squares}
                     onClick={i => this.handleClick(i)}
                 />
             </div>
